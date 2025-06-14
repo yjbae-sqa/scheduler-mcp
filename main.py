@@ -18,6 +18,10 @@ from mcp_scheduler.scheduler import Scheduler
 from mcp_scheduler.server import SchedulerServer
 from mcp_scheduler.utils import setup_logging
 
+# For well-known endpoint
+from mcp_scheduler.well_known import setup_well_known
+import aiohttp
+
 # Import our custom JSON parser utilities
 try:
     from mcp_scheduler.json_parser import patch_fastmcp_parser, install_stdio_wrapper
@@ -103,6 +107,14 @@ class SafeJsonStdin:
         
     def __getattr__(self, name):
         return getattr(self.original_stdin, name)
+
+def start_well_known_server():
+    app = aiohttp.web.Application()
+    setup_well_known(app)
+    # Use the same address/port as the MCP server if possible
+    from mcp_scheduler.config import Config
+    config = Config()
+    aiohttp.web.run_app(app, host=config.server_address, port=config.server_port + 1)
 
 def main():
     """Main entry point."""
@@ -243,7 +255,12 @@ def main():
         )
         scheduler_thread.start()
         log_to_stderr(f"Scheduler started in background thread")
-        
+
+        # Si el transporte es SSE, lanza el servidor well-known en un thread aparte
+        if config.transport == "sse":
+            log_to_stderr(f"Starting well-known server on port {config.server_port + 1}")
+            threading.Thread(target=start_well_known_server, daemon=True).start()
+
         # Start the MCP server (this will block with stdio transport)
         log_to_stderr(f"Starting MCP server with {config.transport} transport")
         server.start()

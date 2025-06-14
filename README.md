@@ -274,6 +274,70 @@ await scheduler.add_reminder_task(
 )
 ```
 
+## MCP Auto-discovery Endpoint
+
+When running in SSE (HTTP) mode, MCP Scheduler exposes a well-known endpoint for tool/schema auto-discovery:
+
+- **Endpoint:** `/.well-known/mcp-schema.json` (on the HTTP port + 1, e.g., if your server runs on 8080, the schema is on 8081)
+- **Purpose:** Allows clients and AI assistants to discover all available MCP tools and their parameters automatically.
+
+### Example
+
+If you run:
+
+```bash
+python main.py --transport sse --port 8080
+```
+
+You can access the schema at:
+
+```
+http://localhost:8081/.well-known/mcp-schema.json
+```
+
+### Example Response
+
+```json
+{
+  "tools": [
+    {
+      "name": "list_tasks",
+      "description": "List all scheduled tasks.",
+      "endpoint": "list_tasks",
+      "method": "POST",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "add_command_task",
+      "description": "Add a new shell command task.",
+      "endpoint": "add_command_task",
+      "method": "POST",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "schedule": {"type": "string"},
+          "command": {"type": "string"},
+          "description": {"type": "string"},
+          "enabled": {"type": "boolean"},
+          "do_only_once": {"type": "boolean"}
+        },
+        "required": ["name", "schedule", "command"],
+        "additionalProperties": false
+      }
+    }
+    // ... more tools ...
+  ]
+}
+```
+
+This schema is generated automatically from the registered MCP tools and always reflects the current server capabilities.
+
 ## Development
 
 If you want to contribute or develop the MCP Scheduler further, here are some additional commands:
