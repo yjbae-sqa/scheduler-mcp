@@ -49,8 +49,8 @@ After installing uv, restart your terminal to ensure the command is available.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/mcp-scheduler.git
-cd mcp-scheduler
+git clone https://github.com/yourusername/scheduler-mcp.git
+cd scheduler-mcp
 
 # Create and activate a virtual environment with uv
 uv venv
