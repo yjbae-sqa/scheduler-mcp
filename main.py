@@ -231,8 +231,8 @@ def main():
         
         # Configure logging - ensure it goes to a file or stderr, not stdout
         if not config.log_file and config.transport == "stdio":
-            # Force a log file when using stdio transport if none was specified
-            config.log_file = "mcp_scheduler.log"
+            # 기존: 파일 강제 지정 → 수정: 파일 비활성화
+            config.log_file = None  # Force stderr logging only
             
         setup_logging(config.log_level, config.log_file)
         
